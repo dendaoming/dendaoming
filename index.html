@@ -1,161 +1,193 @@
 <html><head>
 <meta charset="utf-8">
 <title>蓝盒子</title>
-<script src="http://libs.baidu.com/jquery/1.11.3/jquery.min.js"></script>
 <style>
-html, body { background: #000; margin: 0; padding:0;}
-canvas { width: 100%; height: 100%; position: absolute; }
+body {
+	background: #000;
+	overflow: hidden;
+}
+
+canvas {
+	display: block;
+}
 </style>
 </head>
 
 <body>
-<canvas width="1920" height="951"></canvas>
+<canvas id="canvas" width="1920" height="572"></canvas>
 <script>
-$(function(){
-  var canvas = document.querySelector('canvas'),
-      ctx = canvas.getContext('2d')
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  ctx.lineWidth = .3;
-  ctx.strokeStyle = (new Color(150)).style;
+var canvas,
+	ctx,
+	width,
+	height,
+	size,
+	lines,
+	tick;
 
-  var mousePosition = {
-    x: 30 * canvas.width / 100,
-    y: 30 * canvas.height / 100
-  };
+function line() {
+	this.path = [];
+	this.speed = rand(10, 20);
+	this.count = randInt(10, 30);
+	this.x = width / 2, +1;
+	this.y = height / 2 + 1;
+	this.target = {
+		x: width / 2,
+		y: height / 2
+	};
+	this.dist = 0;
+	this.angle = 0;
+	this.hue = tick / 5;
+	this.life = 1;
+	this.updateAngle();
+	this.updateDist();
+}
 
-  var dots = {
-    nb: 550,
-    distance: 50,
-    d_radius: 100,
-    array: []
-  };
+line.prototype.step = function(i) {
+	this.x += Math.cos(this.angle) * this.speed;
+	this.y += Math.sin(this.angle) * this.speed;
 
-  function colorValue(min) {
-    return Math.floor(Math.random() * 255 + min);
-  }
-  
-  function createColorStyle(r,g,b) {
-    return 'rgba(' + r + ',' + g + ',' + b + ', 0.8)';
-  }
-  
-  function mixComponents(comp1, weight1, comp2, weight2) {
-    return (comp1 * weight1 + comp2 * weight2) / (weight1 + weight2);
-  }
-  
-  function averageColorStyles(dot1, dot2) {
-    var color1 = dot1.color,
-        color2 = dot2.color;
-    
-    var r = mixComponents(color1.r, dot1.radius, color2.r, dot2.radius),
-        g = mixComponents(color1.g, dot1.radius, color2.g, dot2.radius),
-        b = mixComponents(color1.b, dot1.radius, color2.b, dot2.radius);
-    return createColorStyle(Math.floor(r), Math.floor(g), Math.floor(b));
-  }
-  
-  function Color(min) {
-    min = min || 0;
-    this.r = colorValue(min);
-    this.g = colorValue(min);
-    this.b = colorValue(min);
-    this.style = createColorStyle(this.r, this.g, this.b);
-  }
+	this.updateDist();
 
-  function Dot(){
-    this.x = Math.random() * canvas.width;
-    this.y = Math.random() * canvas.height;
+	if (this.dist < this.speed) {
+		this.x = this.target.x;
+		this.y = this.target.y;
+		this.changeTarget();
+	}
 
-    this.vx = -.5 + Math.random();
-    this.vy = -.5 + Math.random();
+	this.path.push({
+		x: this.x,
+		y: this.y
+	});
+	if (this.path.length > this.count) {
+		this.path.shift();
+	}
 
-    this.radius = Math.random() * 2;
+	this.life -= 0.001;
 
-    this.color = new Color();
-    console.log(this);
-  }
+	if (this.life <= 0) {
+		this.path = null;
+		lines.splice(i, 1);
+	}
+};
 
-  Dot.prototype = {
-    draw: function(){
-      ctx.beginPath();
-      ctx.fillStyle = this.color.style;
-      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-      ctx.fill();
-    }
-  };
+line.prototype.updateDist = function() {
+	var dx = this.target.x - this.x,
+		dy = this.target.y - this.y;
+	this.dist = Math.sqrt(dx * dx + dy * dy);
+}
 
-  function createDots(){
-    for(i = 0; i < dots.nb; i++){
-      dots.array.push(new Dot());
-    }
-  }
+line.prototype.updateAngle = function() {
+	var dx = this.target.x - this.x,
+		dy = this.target.y - this.y;
+	this.angle = Math.atan2(dy, dx);
+}
 
-  function moveDots() {
-    for(i = 0; i < dots.nb; i++){
+line.prototype.changeTarget = function() {
+	var randStart = randInt(0, 3);
+	switch (randStart) {
+		case 0: // up
+			this.target.y = this.y - size;
+			break;
+		case 1: // right
+			this.target.x = this.x + size;
+			break;
+		case 2: // down
+			this.target.y = this.y + size;
+			break;
+		case 3: // left
+			this.target.x = this.x - size;
+	}
+	this.updateAngle();
+};
 
-      var dot = dots.array[i];
+line.prototype.draw = function(i) {
+	ctx.beginPath();
+	var rando = rand(0, 10);
+	for (var j = 0, length = this.path.length; j < length; j++) {
+		ctx[(j === 0) ? 'moveTo' : 'lineTo'](this.path[j].x + rand(-rando, rando), this.path[j].y + rand(-rando, rando));
+	}
+	ctx.strokeStyle = 'hsla(' + rand(this.hue, this.hue + 30) + ', 80%, 55%, ' + (this.life / 3) + ')';
+	ctx.lineWidth = rand(0.1, 2);
+	ctx.stroke();
+};
 
-      if(dot.y < 0 || dot.y > canvas.height){
-        dot.vx = dot.vx;
-        dot.vy = - dot.vy;
-      }
-      else if(dot.x < 0 || dot.x > canvas.width){
-        dot.vx = - dot.vx;
-        dot.vy = dot.vy;
-      }
-      dot.x += dot.vx;
-      dot.y += dot.vy;
-    }
-  }
+function rand(min, max) {
+	return Math.random() * (max - min) + min;
+}
 
-  function connectDots() {
-    for(i = 0; i < dots.nb; i++){
-      for(j = 0; j < dots.nb; j++){
-        i_dot = dots.array[i];
-        j_dot = dots.array[j];
+function randInt(min, max) {
+	return Math.floor(min + Math.random() * (max - min + 1));
+};
 
-        if((i_dot.x - j_dot.x) < dots.distance && (i_dot.y - j_dot.y) < dots.distance && (i_dot.x - j_dot.x) > - dots.distance && (i_dot.y - j_dot.y) > - dots.distance){
-          if((i_dot.x - mousePosition.x) < dots.d_radius && (i_dot.y - mousePosition.y) < dots.d_radius && (i_dot.x - mousePosition.x) > - dots.d_radius && (i_dot.y - mousePosition.y) > - dots.d_radius){
-            ctx.beginPath();
-            ctx.strokeStyle = averageColorStyles(i_dot, j_dot);
-            ctx.moveTo(i_dot.x, i_dot.y);
-            ctx.lineTo(j_dot.x, j_dot.y);
-            ctx.stroke();
-            ctx.closePath();
-          }
-        }
-      }
-    }
-  }
+function init() {
+	canvas = document.getElementById('canvas');
+	ctx = canvas.getContext('2d');
+	size = 30;
+	lines = [];
+	reset();
+	loop();
+}
 
-  function drawDots() {
-    for(i = 0; i < dots.nb; i++){
-      var dot = dots.array[i];
-      dot.draw();
-    }
-  }
+function reset() {
+	width = Math.ceil(window.innerWidth / 2) * 2;
+	height = Math.ceil(window.innerHeight / 2) * 2;
+	tick = 0;
 
-  function animateDots() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    moveDots();
-    connectDots();
-    drawDots();
+	lines.length = 0;
+	canvas.width = width;
+	canvas.height = height;
+}
 
-    requestAnimationFrame(animateDots);	
-  }
+function create() {
+	if (tick % 10 === 0) {
+		lines.push(new line());
+	}
+}
 
-  $('canvas').on('mousemove', function(e){
-    mousePosition.x = e.pageX;
-    mousePosition.y = e.pageY;
-  });
+function step() {
+	var i = lines.length;
+	while (i--) {
+		lines[i].step(i);
+	}
+}
 
-  $('canvas').on('mouseleave', function(e){
-    mousePosition.x = canvas.width / 2;
-    mousePosition.y = canvas.height / 2;
-  });
+function clear() {
+	ctx.globalCompositeOperation = 'destination-out';
+	ctx.fillStyle = 'hsla(0, 0%, 0%, 0.1';
+	ctx.fillRect(0, 0, width, height);
+	ctx.globalCompositeOperation = 'lighter';
+}
 
-  createDots();
-  requestAnimationFrame(animateDots);	
-});
+function draw() {
+	ctx.save();
+	ctx.translate(width / 2, height / 2);
+	ctx.rotate(tick * 0.001);
+	var scale = 0.8 + Math.cos(tick * 0.02) * 0.2;
+	ctx.scale(scale, scale);
+	ctx.translate(-width / 2, -height / 2);
+	var i = lines.length;
+	while (i--) {
+		lines[i].draw(i);
+	}
+	ctx.restore();
+}
+
+function loop() {
+	requestAnimationFrame(loop);
+	create();
+	step();
+	clear();
+	draw();
+	tick++;
+}
+
+function onresize() {
+	reset();
+}
+
+window.addEventListener('resize', onresize);
+
+init();
 </script>
 
 
