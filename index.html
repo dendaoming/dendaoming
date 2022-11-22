@@ -1,194 +1,257 @@
-<html><head>
+<!doctype html>
+<html>
+<head>
 <meta charset="utf-8">
-<title>蓝盒子</title>
-<style>
-body {
-	background: #000;
-	overflow: hidden;
-}
-
-canvas {
-	display: block;
-}
-</style>
+<meta name="viewport" content="width=device-width, maximum-scale=1">
+<title>Home</title>
+<link rel="icon" href="favicon.png" type="image/png">
+<link href="css/bootstrap.min.css" rel="stylesheet" type="text/css">
+<link rel="stylesheet" href="js/fancybox/jquery.fancybox.css" type="text/css" media="screen" />
+<link href="css/style.css" rel="stylesheet" type="text/css"> 
+<link href="css/font-awesome.css" rel="stylesheet" type="text/css"> 
+<link href="css/animate.css" rel="stylesheet" type="text/css">
+ 
+<!--[if lt IE 9]>
+    <script src="js/respond-1.1.0.min.js"></script>
+    <script src="js/html5shiv.js"></script>
+    <script src="js/html5element.js"></script>
+<![endif]-->
+ 
 </head>
-
 <body>
-<canvas id="canvas" width="1920" height="572"></canvas>
-<script>
-var canvas,
-	ctx,
-	width,
-	height,
-	size,
-	lines,
-	tick;
-
-function line() {
-	this.path = [];
-	this.speed = rand(10, 20);
-	this.count = randInt(10, 30);
-	this.x = width / 2, +1;
-	this.y = height / 2 + 1;
-	this.target = {
-		x: width / 2,
-		y: height / 2
-	};
-	this.dist = 0;
-	this.angle = 0;
-	this.hue = tick / 5;
-	this.life = 1;
-	this.updateAngle();
-	this.updateDist();
-}
-
-line.prototype.step = function(i) {
-	this.x += Math.cos(this.angle) * this.speed;
-	this.y += Math.sin(this.angle) * this.speed;
-
-	this.updateDist();
-
-	if (this.dist < this.speed) {
-		this.x = this.target.x;
-		this.y = this.target.y;
-		this.changeTarget();
-	}
-
-	this.path.push({
-		x: this.x,
-		y: this.y
-	});
-	if (this.path.length > this.count) {
-		this.path.shift();
-	}
-
-	this.life -= 0.001;
-
-	if (this.life <= 0) {
-		this.path = null;
-		lines.splice(i, 1);
-	}
-};
-
-line.prototype.updateDist = function() {
-	var dx = this.target.x - this.x,
-		dy = this.target.y - this.y;
-	this.dist = Math.sqrt(dx * dx + dy * dy);
-}
-
-line.prototype.updateAngle = function() {
-	var dx = this.target.x - this.x,
-		dy = this.target.y - this.y;
-	this.angle = Math.atan2(dy, dx);
-}
-
-line.prototype.changeTarget = function() {
-	var randStart = randInt(0, 3);
-	switch (randStart) {
-		case 0: // up
-			this.target.y = this.y - size;
-			break;
-		case 1: // right
-			this.target.x = this.x + size;
-			break;
-		case 2: // down
-			this.target.y = this.y + size;
-			break;
-		case 3: // left
-			this.target.x = this.x - size;
-	}
-	this.updateAngle();
-};
-
-line.prototype.draw = function(i) {
-	ctx.beginPath();
-	var rando = rand(0, 10);
-	for (var j = 0, length = this.path.length; j < length; j++) {
-		ctx[(j === 0) ? 'moveTo' : 'lineTo'](this.path[j].x + rand(-rando, rando), this.path[j].y + rand(-rando, rando));
-	}
-	ctx.strokeStyle = 'hsla(' + rand(this.hue, this.hue + 30) + ', 80%, 55%, ' + (this.life / 3) + ')';
-	ctx.lineWidth = rand(0.1, 2);
-	ctx.stroke();
-};
-
-function rand(min, max) {
-	return Math.random() * (max - min) + min;
-}
-
-function randInt(min, max) {
-	return Math.floor(min + Math.random() * (max - min + 1));
-};
-
-function init() {
-	canvas = document.getElementById('canvas');
-	ctx = canvas.getContext('2d');
-	size = 30;
-	lines = [];
-	reset();
-	loop();
-}
-
-function reset() {
-	width = Math.ceil(window.innerWidth / 2) * 2;
-	height = Math.ceil(window.innerHeight / 2) * 2;
-	tick = 0;
-
-	lines.length = 0;
-	canvas.width = width;
-	canvas.height = height;
-}
-
-function create() {
-	if (tick % 10 === 0) {
-		lines.push(new line());
-	}
-}
-
-function step() {
-	var i = lines.length;
-	while (i--) {
-		lines[i].step(i);
-	}
-}
-
-function clear() {
-	ctx.globalCompositeOperation = 'destination-out';
-	ctx.fillStyle = 'hsla(0, 0%, 0%, 0.1';
-	ctx.fillRect(0, 0, width, height);
-	ctx.globalCompositeOperation = 'lighter';
-}
-
-function draw() {
-	ctx.save();
-	ctx.translate(width / 2, height / 2);
-	ctx.rotate(tick * 0.001);
-	var scale = 0.8 + Math.cos(tick * 0.02) * 0.2;
-	ctx.scale(scale, scale);
-	ctx.translate(-width / 2, -height / 2);
-	var i = lines.length;
-	while (i--) {
-		lines[i].draw(i);
-	}
-	ctx.restore();
-}
-
-function loop() {
-	requestAnimationFrame(loop);
-	create();
-	step();
-	clear();
-	draw();
-	tick++;
-}
-
-function onresize() {
-	reset();
-}
-
-window.addEventListener('resize', onresize);
-
-init();
-</script>
-
-
-</body></html>
+ <div id="carousel" class="carousel slide carousel-fade" data-ride="carousel">
+    <ol class="carousel-indicators">
+        <li data-target="#carousel" data-slide-to="0" class="active"></li>
+        <li data-target="#carousel" data-slide-to="1"></li>
+        <li data-target="#carousel" data-slide-to="2"></li>
+    </ol>
+    <!-- Carousel items -->
+    <div class="carousel-inner">
+        <div class="active item">
+		<div class="caption zoomIn wow animated"> 		 
+              <h2>海贼王 <br/><strong>海贼王，我当定了</strong></h2>
+              </div>
+			  
+		<img class="" src="img/timg (5).gif"  width="1920px" height="800px"alt=""></div>
+        <div class="item">
+		<div class="caption zoomIn wow animated"> 		 			 
+              <h2>かいぞくおう<br/><strong>かいぞくおう になる</strong></h2>
+              </div>
+			  <img class="" src="img/timg (1).gif"  width="1920px" height="800px"alt=""></div>
+        <div class="item">
+		<div class="caption zoomIn wow animated"> 		 			
+              <h2>ONE PIECE<br/><strong>One Piece, I'm in.</strong></h2>
+             </div><img class="" src="img/slide2.gif" width="1920px" height="800px"alt=""></div>
+    </div>
+    <!-- Carousel nav -->
+    <a class="carousel-control left" href="#carousel" data-slide="prev">&lsaquo;</a>
+    <a class="carousel-control right" href="#carousel" data-slide="next">&rsaquo;</a>
+</div>
+ 
+<!--Header_section-->
+<header id="header_wrapper">
+  <div class="container">
+    <div class="header_box">
+      <!--<div class="logo"><a href="#">Resume</a></div>-->
+	  <nav class="navbar navbar-inverse" role="navigation">
+      <div class="navbar-header">
+        <button type="button" id="nav-toggle" class="navbar-toggle" data-toggle="collapse" data-target="#main-nav"> <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span> </button>
+        </div>
+	    <div id="main-nav" class="collapse navbar-collapse navStyle">
+			<ul class="nav navbar-nav" id="mainNav">
+			  <li class="active"><a href="#carousel" class="scroll-link">首页</a></li>
+			  <li><a href="#aboutUs" class="scroll-link">介绍</a></li>
+			  <li><a href="#service" class="scroll-link">人物简介</a></li>
+			  <li><a href="#Portfolio" class="scroll-link">人物集</a></li> 
+			  <li><a href="#experience" class="scroll-link">时间线</a></li> 
+			  <li><a href="#contact" class="scroll-link">待续……</a></li>
+			</ul>
+      </div>
+	 </nav>
+    </div>
+  </div>
+</header>
+<!--Header_section--> 
+ 
+<section id="aboutUs"><!--Aboutus-->
+<div class="inner_wrapper about-us aboutUs-container fadeInLeft animated wow">
+  <div class="container">
+    <h2>《海贼王》 ”かいぞくおう“</h2>
+	<h6>尾田荣一郎创作的漫画作品</h6>
+    <div class="inner_section">
+ <div class="row">
+      <div class="col-md-6"> <img class="img-responsive" src="img/316040.gif" align=""> </div>
+      <div class="col-md-6">
+        <h3>作品简介</h3>
+        <p>故事讲述了想成为海贼王的路飞，误食了海贼
+ 
+ 
+香克斯收藏的橡胶恶魔果实，而变成橡胶人，恶魔果实的副作用却使他永远不能游泳。不过他的理想仍然没有改变——成为海贼王，并且找到传说中哥尔·D·罗杰的秘宝－One Piece，冒险就此开始了。</p> 
+         
+        <p>误食“橡胶果实”的路飞怀揣着对这个世界的憧憬和对自己成为海贼王梦想的执著，路飞出海了。
+这一路上还真让他找到了许多身怀绝技的朋友：目标成为世界第一剑客的索隆，想绘画出世界地图的航海士娜美，想找到all blue的海上厨师香吉士，特别善于说大话但想成为狙击王的乌索普，想成为最强医生的萌萌哒的船医乔巴，成熟富有女人味的考古学家罗宾，以及顶级的船匠改造人弗兰奇，和立志与鲸鱼拉布重逢的骷髅音乐家布鲁克。
+路飞一伙一路千辛万苦地努力着，而由此开始One Piece的故事将要完全展开了
+									</p>
+ 
+									<ul class="about-us-list">
+										<li class="points">海军军队及世界政府——绝对正义</li> 
+                                        <li class="points">王下七武海——世界政府公认的七位大海贼</li>
+										<li class="points">四皇——海上皇帝</li>
+									</ul><!-- /.about-us-list -->
+								 
+      </div>
+    </div>
+	     </div>
+  </div> 
+  </div>
+</section>
+<!--Aboutus--> 
+ 
+ 
+<!--Service-->
+<section  id="service">
+  <div class="container">
+    <h2>人物简介</h2>
+	<h6>草帽海贼团主要成员</h6>
+    <div class="service_wrapper">
+      <div class="row">
+        <div class="col-md-3">
+		<div class="service_icon delay-03s animated wow  zoomIn"></div> <div> <span><img class="" src="img/11.jpg" width="180px" height="180px" alt=""></div>
+          <div class="service_block">
+   
+            <h3 class="animated fadeInUp wow">船长(草帽)—— 蒙奇·D·路飞</h3>
+            <p class="animated fadeInDown wow">草帽海贼团船长，路飞的标志性特征是一顶草帽，因此常被直接称呼为草帽小子或草帽路飞。梦想是找到传说中的One Piece，成为海贼王。悬赏金：15亿 </p>
+          </div>
+        </div>
+        <div class="col-md-3"> 
+		<div class="service_icon icon2  delay-03s animated wow zoomIn"></div> <div> <span><img class="" src="img/51.jpg" width="180px" height="180px" alt=""></div>
+		<div class="service_block">
+            <h3 class="animated fadeInUp wow">海贼猎人(剑士)——罗罗诺亚·索隆</h3>
+            <p class="animated fadeInDown wow">草帽一伙中的战斗员，是悬赏过亿武艺高强的三刀流剑士，能够自由操纵三把刀战斗。爱喝酒，爱睡觉，讲义气，海贼第一超级大路痴。悬赏金：三亿两千万 </p>
+          </div>
+        </div>
+        <div class="col-md-3">
+		<div class="service_icon icon3  delay-03s animated wow zoomIn"></div> <div> <span><img class="" src="img/56.jpg" width="180px" height="180px" alt=""></div>
+          <div class="service_block">
+            
+            <h3 class="animated fadeInUp wow">黑足(厨师)——文斯莫克·山治</h3>
+            <p class="animated fadeInDown wow">草帽海贼团厨师，金发，有着卷曲眉毛，永远遮住半边脸的家伙，香烟不离口，最爱女人，很花心但很有风度，海贼中的绅士。悬赏金：三亿三千万 </p>
+          </div>
+        </div>
+		
+		 <div class="col-md-3">
+		<div class="service_icon icon3  delay-03s animated wow zoomIn"> </div><div> <span><img class="" src="img/100.jpg" width="180px" height="180px" alt=""></div>
+          <div class="service_block">
+            
+            <h3 class="animated fadeInUp wow">小贼猫(航海士)——娜美</h3>
+            <p class="animated fadeInDown wow">草帽海贼团的航海士，特征是橘色的短发和左肩的刺青使用棍术，武器是天候棒。精通气象学和航海术，是能精确画出海图的天才。出海的目的是为了绘出世界地图。悬赏金：六千六百万</p>
+          </div>
+        </div>
+      </div> 
+	
+    </div>
+  </div>
+</section>
+<!--Service-->  
+<div class="tlinks">Collect from <a href="http://www.cssmoban.com/" >网页模板</a></div>
+<!-- Portfolio -->
+<section id="Portfolio" class="content"> 
+  
+  <!-- Container -->
+  <div class="container portfolio_title"> 
+    
+    <!-- Title -->
+    <div class="section-title">
+      <h2>"ONE PIECE" 人物集</h2>
+	<h6>想要我的财宝吗？想要的话可以全部给你，去找吧！我把所有财宝都放在那里————One Piece</h6>
+	  
+    </div>
+    <!--/Title --> 
+    
+  </div>
+  <!-- Container -->
+  
+  <div class="portfolio-top"></div>
+  
+  <!-- Portfolio Filters -->
+  <div class="portfolio"> 
+    
+    <div id="filters" class="sixteen columns">
+      <ul class="clearfix">
+        <li><a id="all" href="#" data-filter="*" class="active">
+          <h5>海贼王</h5>
+          </a></li>
+        <li><a class="" href="#" data-filter=".nature">
+          <h5>海军</h5>
+          </a></li>
+        <li><a class="" href="#" data-filter=".wildlife">
+          <h5>海贼</h5>
+          </a></li>
+        <li><a class="" href="#" data-filter=".animals">
+          <h5>革命军</h5>
+          </a></li> 
+      </ul>
+    </div>
+    <!--/Portfolio Filters --> 
+    
+    <!-- Portfolio Wrapper -->
+    <div class="isotope fadeInLeft animated wow grid" style="position: relative; overflow: hidden; height: 480px;" id="portfolio_wrapper">  
+      <!-- Portfolio Item -->
+      <figure style="position: absolute; left:0px; top: 0px; transform: translate3d(0px, 0px, 0px) scale3d(1, 1, 1); width: 400px; opacity: 1;" class="portfolio-item one-four   animals isotope-item effect-oscar">
+	  
+        <div class="portfolio_img"> 
+		<img src="img/2323.jpg"  alt="Portfolio 1"> </div> 
+			<figcaption>		
+				<div>
+				  <a href="img/2323.jpg" class="fancybox"> 
+				  <h2>革命军</h2>
+							<p>龙、萨博、贝洛·贝蒂、莫里卡拉斯……</p>
+				  </a>
+				</div>
+			</figcaption>
+        </figure>
+      <!--/Portfolio Item --> 
+      
+      <!-- Portfolio Item-->
+      <figure style="position: absolute; left: 0px; top: 0px; transform: translate3d(337px, 0px, 0px) scale3d(1, 1, 1); width: 400px; opacity: 1;" class="portfolio-item one-four  wildlife isotope-item effect-oscar">
+        <div class="portfolio_img"> <img src="img/portfolio_pic2.jpg" alt="Portfolio 1"> </div>
+        	<figcaption>		
+				<div>
+				  <a href="img/portfolio_pic2.jpg" class="fancybox"> 
+					<h2>草帽海贼团</h2>
+							<p>路飞、索隆、山治、乌索普、娜美、乔巴、罗宾、弗兰奇、布鲁克、甚平</p>
+				  </a>
+				</div>
+			</figcaption>
+        </figure>
+      <!--/Portfolio Item --> 
+      
+      <!-- Portfolio Item -->
+      <figure style="position: absolute; left: 0px; top: 0px; transform: translate3d(674px, 0px, 0px) scale3d(1, 1, 1); width: 337px; opacity: 1;" class="portfolio-item one-four  wildlife  isotope-item effect-oscar">
+        <div class="portfolio_img"> <img src="img/portfolio_pic3.jpg" alt="Portfolio 1"> </div>
+       <figcaption>		
+				<div>
+				  <a href="img/portfolio_pic3.jpg" class="fancybox"> 
+					<h2>白胡子海贼</h2>
+							<p>白胡子、艾斯、马尔科、乔兹、比斯塔……</p>
+				  </a>
+				</div>
+			</figcaption>
+        </figure>
+      <!--/Portfolio Item--> 
+      
+      <!-- Portfolio Item-->
+      <figure style="position: absolute; left: 0px; top: 0px; transform: translate3d(1011px, 0px, 0px) scale3d(1, 1, 1); width: 337px; opacity: 1;" class="portfolio-item one-four  citylife  nature web isotope-item effect-oscar">
+        <div class="portfolio_img"> <img src="img/portfolio_pic4.jpg" alt="Portfolio 1"> </div>
+         <figcaption>		
+				<div>
+				  <a href="img/portfolio_pic4.jpg" class="fancybox"> 
+					<h2>海军 大将</h2>
+							<p> 黄猿、青雉、赤犬</p>
+				  </a>
+				</div>
+			</figcaption>
+      </figure>
+      <!-- Portfolio Item --> 
+      
+      <!-- Portfolio
