@@ -1,91 +1,259 @@
+  
 <!DOCTYPE html>
-<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<meta charset="UTF-8">
-<title>行业智慧能力平台</title>
-<link rel="stylesheet" type="text/css" href="css/style2.0.css">
-<style type="text/css">
- 
-	.tyg-div-form form {padding:10px;}
-	.tyg-div-form form input[type="text"]{
-		width: 270px;
-	    height: 30px;
-	    margin: 25px 10px 0px 0px;
-	}
-	.tyg-div-form form button {
-	    cursor: pointer;
-	    width: 270px;
-	    height: 44px;
-	    margin-top: 25px;
-	    padding: 0;
-	    background: #2ec0f6;
-	    -moz-border-radius: 6px;
-	    -webkit-border-radius: 6px;
-	    border-radius: 6px;
-	    border: 1px solid #2ec0f6;
-	    -moz-box-shadow:
-	        0 15px 30px 0 rgba(255,255,255,.25) inset,
-	        0 2px 7px 0 rgba(0,0,0,.2);
-	    -webkit-box-shadow:
-	        0 15px 30px 0 rgba(255,255,255,.25) inset,
-	        0 2px 7px 0 rgba(0,0,0,.2);
-	    box-shadow:
-	        0 15px 30px 0 rgba(255,255,255,.25) inset,
-	        0 2px 7px 0 rgba(0,0,0,.2);
-	    font-family: 'PT Sans', Helvetica, Arial, sans-serif;
-	    font-size: 14px;
-	    font-weight: 700;
-	    color: #fff;
-	    text-shadow: 0 1px 2px rgba(0,0,0,.1);
-	    -o-transition: all .2s;
-	    -moz-transition: all .2s;
-	    -webkit-transition: all .2s;
-	    -ms-transition: all .2s;
-}
-</style>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <title>echarts Mr.小铭 </title>
+    <style type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+
+        #box {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
 <body>
-<div class="tyg-div">
-	<ul>
-    	<li>让</li>
-    	<li><div style="margin-left:20px;">数</div></li>
-    	<li><div style="margin-left:40px;">据</div></li>
-    	<li><div style="margin-left:60px;">改</div></li>
-    	<li><div style="margin-left:80px;">变</div></li>
-    	<li><div style="margin-left:100px;">生</div></li>
-    	<li><div style="margin-left:120px;">活</div></li>
-    </ul>
-</div> 
-<div id="contPar" class="contPar">
-	<div id="page1"  style="z-index:1;">
-		<div class="title0">行业智慧能力平台</div>
-		<div class="title1">旅游、交通、气象、公共安全、大数据</div>
-		<div class="imgGroug">
-			<ul>
-				<img alt="" class="img0 png" src="./img/page1_0.png">
-				<img alt="" class="img1 png" src="./img/page1_1.png">
-				<img alt="" class="img2 png" src="./img/page1_2.png">
-			</ul>
-		</div>
-		<img alt="" class="img3 png" src="./img/page1_3.jpg">
-	</div>
-</div>
-<div class="tyg-div-denglv">
-	<div class="tyg-div-form">
-		<form action="">
-			<h2>登录</h2><p class="tyg-p">欢迎访问  智慧能力</p>
-			<div style="margin:5px 0px;">
-				<input type="text" placeholder="请输入账号..."/>
-			</div>
-			<div style="margin:5px 0px;">
-				<input type="text" placeholder="请输入密码..."/>
-			</div>
-			<div style="margin:5px 0px;">
-				<input type="text" style="width:150px;" placeholder="请输入验证码..."/>
-				<img src="./img/1.png" style="vertical-align:bottom;" alt="验证码"/>
-			</div>
-			<button type="submit" >登<span style="width:20px;"></span>录</button>
-		</form>
-	</div>
-</div>
-<script type="text/javascript" src="./js/jquery-1.8.0.min.js"></script>
-</body>
-</html>
+    <div id="box" class="box"> </div>
+    <script type="text/javascript">
+        var canvas = document.createElement('canvas');
+        canvas.width = 2048;
+        canvas.height = 1024;
+         function update(threshold, levels) {
+                    context.clearRect(0, 0, canvas.width, canvas.height);
+                    var thresholds = [];
+                    for (var i = 0; i < levels; i++) {
+                        thresholds.push((threshold + 1 / levels * i) % 1);
+                    }
+                    results = contours.thresholds(thresholds)(values);
+                    redraw();
+                }
+
+                function redraw() {
+                    results.forEach(function(d, idx) {
+                        context.beginPath();
+                        path(d);
+                        context.globalAlpha = 1;
+                        context.stroke();
+                        if (idx > config.levels / 5 * 3) {
+                            context.globalAlpha = 0.01;
+                            context.fill();
+                        }
+                    });
+                    opt.onupdate();
+                }
+                d3.timer(function(t) {
+                    var threshold = (t % 10000) / 10000;
+                    update(threshold, 1);
+                });
+
+                initCharts(opt);
+
+                update(config.threshold, config.levels);
+
+            });
+
+            function image(url) {
+                return new Promise(function(resolve) {
+                    var image = new Image();
+                    image.src = url;
+                    image.onload = function() {
+                        var canvas = document.createElement("canvas");
+                        canvas.width = image.width / 8;
+                        canvas.height = image.height / 8;
+                        var context = canvas.getContext("2d");
+                        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+                        resolve(context.getImageData(0, 0, canvas.width, canvas.height));
+                    };
+                });
+            }
+
+            function initCharts(opt) {
+                var option = {
+                    title: {
+                        //			        text: '点击地球获取该区域地图',
+                        textStyle: {
+                            color: '#fff'
+                        }
+                    },
+                    tooltip: {
+                        show: true
+                    },
+                    globe: {
+                        //		        baseTexture: mapChart,
+                        //			    environment:'none',//背景
+                        environment: 'img/charity_top.png',
+                        heightTexture: 'img/bathymetry_bw_composite_4k-back.jpg',
+                        baseTexture: 'img/8.png',
+                        shading: 'lambert',
+                        light: { // 光照阴影
+                            main: {
+                                color: 'blue', // 光照颜色
+                                intensity: 14.2, // 光照强度
+                                shadowQuality: 'ultra', //阴影亮度
+                                shadow: true, // 是否显示阴影
+                                alpha: 40,
+                                beta: -30
+                            },
+                            ambient: {
+                                intensity: 4.6
+                            }
+                        },
+                        viewControl: {
+                            alpha: 30,
+                            beta: 160,
+                            //			            targetCoord: [116.46, 39.92],
+                            autoRotate: true,
+                            autoRotateAfterStill: 10,
+                            distance: 240,
+                            autoRotateSpeed: 4
+                        },
+                        postEffect: { //为画面添加高光，景深，环境光遮蔽（SSAO），调色等效果
+                            enable: true, //是否开启
+                            SSAO: { //环境光遮蔽
+                                radius: 1, //环境光遮蔽的采样半径。半径越大效果越自然
+                                intensity: 1, //环境光遮蔽的强度
+                                enable: true
+                            }
+                        },
+
+                        layers: [{
+                            type: 'blend',
+                            blendTo: 'emission',
+                            texture: contourChart,
+                            intensity: config.intensity
+                        }]
+                    },
+                    series: [{
+                        name: 'lines3D',
+                        type: 'lines3D',
+                        coordinateSystem: 'globe',
+                        effect: {
+                            show: true,
+                            period: 2,
+                            trailWidth: 3,
+                            trailLength: 0.5,
+                            trailOpacity: 1,
+                            trailColor: '#0087f4'
+                        },
+                        blendMode: 'lighter',
+                        lineStyle: {
+                            width: 1,
+                            color: '#0087f4',
+                            opacity: 0.2
+                        },
+                        data: [],
+                        silent: false
+                    }, { //点
+                        name: '景区',
+                        //		        type: 'effectScatter',
+                        //		        coordinateSystem: 'bmap',
+                        type: 'scatter3D',
+                        blendMode: 'lighter',
+                        coordinateSystem: 'globe',
+                        showEffectOn: 'render',
+                        zlevel: 2,
+                        effectType: "ripple",
+                        symbolSize: 15,
+                        rippleEffect: {
+                            period: 4,
+                            scale: 4,
+                            brushType: 'fill'
+                        },
+
+                        //		        showEffectOn: 'hover',
+                        hoverAnimation: true,
+                        label: {
+                            normal: {
+                                show: true,
+                                position: 'right',
+                                //			                formatter: '{b}',
+                                formatter: function(params) {
+                                    if (params.dataIndex == 1) {
+                                        return '南京'
+                                    } else if (params.dataIndex == 2) {
+                                        return '沈阳'
+                                    } else if (params.dataIndex == 3) {
+                                        return '太原'
+                                    } else if (params.dataIndex == 4) {
+                                        return '日本'
+                                    } else if (params.dataIndex == 5) {
+                                        return '雅加达'
+                                    } else if (params.dataIndex == 0) {
+                                        return '徐州'
+                                    } else if (params.dataIndex == 6) {
+                                        return '昆明'
+                                    }
+                                },
+                                textStyle: {
+                                    fontSize: 18,
+                                    color: '#f5d909',
+                                    fontWeight: 'bold',
+                                    backgroundColor: 'transparent'
+                                }
+                            }
+                        },
+                        itemStyle: {
+                            normal: {
+                                color: 'rgb(29,183,255)'
+                            }
+                        },
+                
+                        data: [
+                            [117.11, 34.15],
+                            [118.58, 32.01],
+                            [123.38, 41.8],
+                            [112.01, 38.01],
+                            [139.46, 35.42],
+                            [116.58, 6.10],
+                            [102.90, 25.31]
+                        ]
+
+                    }]
+                }
+                // 随机数据
+
+                option.series[0].data = [{
+                        coords: [
+                            [117.11, 34.15],
+                            [118.58, 32.01]
+                        ],
+                        value: (Math.random() * 3000).toFixed(2)
+                    },
+                    {
+                        coords: [
+                            [123.38, 41.8],
+                            [118.58, 32.01]
+                        ],
+                        value: (Math.random() * 3000).toFixed(2)
+                    },
+                    {
+                        coords: [
+                            [112.01, 38.01],
+                            [118.58, 32.01]
+                        ],
+                        value: (Math.random() * 3000).toFixed(2)
+                    },
+                    {
+                        coords: [
+                            [139.46, 35.42],
+                            [118.58, 32.01]
+                        ],
+                        value: (Math.random() * 3000).toFixed(2)
+                    },
+                    {
+                        coords: [
+                            [116.58, 6.10],
+                            [118.58, 32.01]
+                        ],
