@@ -1,259 +1,90 @@
-  
 <!DOCTYPE html>
-<html>
-
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title>echarts 3D地球代码世界地图 </title>
-    <style type="text/css">
-        * {
-            margin: 0;
-            padding: 0;
-        }
+<title>star</title>
+<script type="text/javascript">
+window.onload = function () {
+C = Math.cos; // cache Math objects
+S = Math.sin;
+U = 0;
+w = window;
+j = document;
+d = j.getElementById("c");
+c = d.getContext("2d");
+W = d.width = w.innerWidth;
+H = d.height = w.innerHeight;
+c.fillRect(0, 0, W, H); // resize <canvas> and draw black rect (default)
+c.globalCompositeOperation = "lighter";  // switch to additive color application
+c.lineWidth = 0.2;
+c.lineCap = "round";
+var bool = 0, 
+t = 0; // theta
+d.onmousemove = function (e) {
+if(window.T) {
+if(D==9) { D=Math.random()*15; f(1); }
+clearTimeout(T);
+}
+X = e.pageX; // grab mouse pixel coords
+Y = e.pageY;
+a=0; // previous coord.x
+b=0; // previous coord.y 
+A = X, // original coord.x
+B = Y; // original coord.y
+R=(e.pageX/W * 999>>0)/999;
+r=(e.pageY/H * 999>>0)/999;
+U=e.pageX/H * 360 >>0;
+D=9;
+g = 360 * Math.PI / 180;
+T = setInterval(f = function (e) { // start looping spectrum
+c.save();
+c.globalCompositeOperation = "source-over"; // switch to additive color application
+if(e!=1) {
+c.fillStyle = "rgba(0,0,0,0.02)";
+c.fillRect(0, 0, W, H); // resize <canvas> and draw black rect (default)
+}
+c.restore();
+i = 25; while(i --) {
+c.beginPath();
+if(D > 450 || bool) { // decrease diameter
+if(!bool) { // has hit maximum
+bool = 1;
+}
+if(D < 0.1) { // has hit minimum
+bool = 0;
+}
+t -= g; // decrease theta
+D -= 0.1; // decrease size
+}
+if(!bool) {
+t += g; // increase theta
+D += 0.1; // increase size
+}
+q = (R / r - 1) * t; // create hypotrochoid from current mouse position, and setup variables (see: http://en.wikipedia.org/wiki/Hypotrochoid)
+x = (R - r) * C(t) + D * C(q) + (A + (X - A) * (i / 25)) + (r - R); // center on xy coords
+y = (R - r) * S(t) - D * S(q) + (B + (Y - B) * (i / 25));
+if (a) { // draw once two points are set
+c.moveTo(a, b);
+c.lineTo(x, y)
+}
+c.strokeStyle = "hsla(" + (U % 360) + ",100%,50%,0.75)"; // draw rainbow hypotrochoid
+c.stroke();
+a = x; // set previous coord.x
+b = y; // set previous coord.y
+}
+U -= 0.5; // increment hue
+A = X; // set original coord.x
+B = Y; // set original coord.y
+}, 16);
+}
+j.onkeydown = function(e) { a=b=0; R += 0.05 }
+d.onmousemove({pageX:300, pageY:290})
+}
 
-        body {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-        }
 
-        #box {
-            width: 100%;
-            height: 100%;
-        }
-    </style>
+</script>
 </head>
 
-<body>
-    <div id="box" class="box"> </div>
-    <script type="text/javascript">
-        var canvas = document.createElement('canvas');
-        canvas.width = 2048;
-        canvas.height = 1024;
-         function update(threshold, levels) {
-                    context.clearRect(0, 0, canvas.width, canvas.height);
-                    var thresholds = [];
-                    for (var i = 0; i < levels; i++) {
-                        thresholds.push((threshold + 1 / levels * i) % 1);
-                    }
-                    results = contours.thresholds(thresholds)(values);
-                    redraw();
-                }
-
-                function redraw() {
-                    results.forEach(function(d, idx) {
-                        context.beginPath();
-                        path(d);
-                        context.globalAlpha = 1;
-                        context.stroke();
-                        if (idx > config.levels / 5 * 3) {
-                            context.globalAlpha = 0.01;
-                            context.fill();
-                        }
-                    });
-                    opt.onupdate();
-                }
-                d3.timer(function(t) {
-                    var threshold = (t % 10000) / 10000;
-                    update(threshold, 1);
-                });
-
-                initCharts(opt);
-
-                update(config.threshold, config.levels);
-
-            });
-
-            function image(url) {
-                return new Promise(function(resolve) {
-                    var image = new Image();
-                    image.src = url;
-                    image.onload = function() {
-                        var canvas = document.createElement("canvas");
-                        canvas.width = image.width / 8;
-                        canvas.height = image.height / 8;
-                        var context = canvas.getContext("2d");
-                        context.drawImage(image, 0, 0, canvas.width, canvas.height);
-                        resolve(context.getImageData(0, 0, canvas.width, canvas.height));
-                    };
-                });
-            }
-
-            function initCharts(opt) {
-                var option = {
-                    title: {
-                        //			        text: '点击地球获取该区域地图',
-                        textStyle: {
-                            color: '#fff'
-                        }
-                    },
-                    tooltip: {
-                        show: true
-                    },
-                    globe: {
-                        //		        baseTexture: mapChart,
-                        //			    environment:'none',//背景
-                        environment: 'img/charity_top.png',
-                        heightTexture: 'img/bathymetry_bw_composite_4k-back.jpg',
-                        baseTexture: 'img/8.png',
-                        shading: 'lambert',
-                        light: { // 光照阴影
-                            main: {
-                                color: 'blue', // 光照颜色
-                                intensity: 14.2, // 光照强度
-                                shadowQuality: 'ultra', //阴影亮度
-                                shadow: true, // 是否显示阴影
-                                alpha: 40,
-                                beta: -30
-                            },
-                            ambient: {
-                                intensity: 4.6
-                            }
-                        },
-                        viewControl: {
-                            alpha: 30,
-                            beta: 160,
-                            //			            targetCoord: [116.46, 39.92],
-                            autoRotate: true,
-                            autoRotateAfterStill: 10,
-                            distance: 240,
-                            autoRotateSpeed: 4
-                        },
-                        postEffect: { //为画面添加高光，景深，环境光遮蔽（SSAO），调色等效果
-                            enable: true, //是否开启
-                            SSAO: { //环境光遮蔽
-                                radius: 1, //环境光遮蔽的采样半径。半径越大效果越自然
-                                intensity: 1, //环境光遮蔽的强度
-                                enable: true
-                            }
-                        },
-
-                        layers: [{
-                            type: 'blend',
-                            blendTo: 'emission',
-                            texture: contourChart,
-                            intensity: config.intensity
-                        }]
-                    },
-                    series: [{
-                        name: 'lines3D',
-                        type: 'lines3D',
-                        coordinateSystem: 'globe',
-                        effect: {
-                            show: true,
-                            period: 2,
-                            trailWidth: 3,
-                            trailLength: 0.5,
-                            trailOpacity: 1,
-                            trailColor: '#0087f4'
-                        },
-                        blendMode: 'lighter',
-                        lineStyle: {
-                            width: 1,
-                            color: '#0087f4',
-                            opacity: 0.2
-                        },
-                        data: [],
-                        silent: false
-                    }, { //点
-                        name: '景区',
-                        //		        type: 'effectScatter',
-                        //		        coordinateSystem: 'bmap',
-                        type: 'scatter3D',
-                        blendMode: 'lighter',
-                        coordinateSystem: 'globe',
-                        showEffectOn: 'render',
-                        zlevel: 2,
-                        effectType: "ripple",
-                        symbolSize: 15,
-                        rippleEffect: {
-                            period: 4,
-                            scale: 4,
-                            brushType: 'fill'
-                        },
-
-                        //		        showEffectOn: 'hover',
-                        hoverAnimation: true,
-                        label: {
-                            normal: {
-                                show: true,
-                                position: 'right',
-                                //			                formatter: '{b}',
-                                formatter: function(params) {
-                                    if (params.dataIndex == 1) {
-                                        return '南京'
-                                    } else if (params.dataIndex == 2) {
-                                        return '沈阳'
-                                    } else if (params.dataIndex == 3) {
-                                        return '太原'
-                                    } else if (params.dataIndex == 4) {
-                                        return '日本'
-                                    } else if (params.dataIndex == 5) {
-                                        return '雅加达'
-                                    } else if (params.dataIndex == 0) {
-                                        return '徐州'
-                                    } else if (params.dataIndex == 6) {
-                                        return '昆明'
-                                    }
-                                },
-                                textStyle: {
-                                    fontSize: 18,
-                                    color: '#f5d909',
-                                    fontWeight: 'bold',
-                                    backgroundColor: 'transparent'
-                                }
-                            }
-                        },
-                        itemStyle: {
-                            normal: {
-                                color: 'rgb(29,183,255)'
-                            }
-                        },
-                
-                        data: [
-                            [117.11, 34.15],
-                            [118.58, 32.01],
-                            [123.38, 41.8],
-                            [112.01, 38.01],
-                            [139.46, 35.42],
-                            [116.58, 6.10],
-                            [102.90, 25.31]
-                        ]
-
-                    }]
-                }
-                // 随机数据
-
-                option.series[0].data = [{
-                        coords: [
-                            [117.11, 34.15],
-                            [118.58, 32.01]
-                        ],
-                        value: (Math.random() * 3000).toFixed(2)
-                    },
-                    {
-                        coords: [
-                            [123.38, 41.8],
-                            [118.58, 32.01]
-                        ],
-                        value: (Math.random() * 3000).toFixed(2)
-                    },
-                    {
-                        coords: [
-                            [112.01, 38.01],
-                            [118.58, 32.01]
-                        ],
-                        value: (Math.random() * 3000).toFixed(2)
-                    },
-                    {
-                        coords: [
-                            [139.46, 35.42],
-                            [118.58, 32.01]
-                        ],
-                        value: (Math.random() * 3000).toFixed(2)
-                    },
-                    {
-                        coords: [
-                            [116.58, 6.10],
-                            [118.58, 32.01]
-                        ],
+<body style="margin:0px;padding:0px;width:100%;height:100%;overflow:hidden;">
+<canvas id="c"></canvas>
+</body>
+</html>
